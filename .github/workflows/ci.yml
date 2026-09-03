@@ -1,0 +1,61 @@
+name: Libriq CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Lint, Build, and Automated Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: JavaScript Syntax & Static Analysis
+        run: |
+          node --check api/app.js
+          node --check api/auth.js
+          node --check api/catalog.js
+          node --check api/config.js
+          node --check api/response.js
+          node --check api/middleware/auth.js
+          node --check api/middleware/validate.js
+          node --check api/middleware/errorHandler.js
+          node --check scripts/generate-config.mjs
+          node --check scripts/e2e-server.mjs
+          node --check frontend/js/sync.js
+          node --check frontend/js/firebase-client.js
+          node --check frontend/js/navigation.js
+          node --check frontend/js/storage.js
+          node --check frontend/js/app.js
+          node --check frontend/js/data.js
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Core Test Suite
+        run: npm test
+
+      - name: Run Critical Module Regression Checks
+        run: |
+          npm run test:data-modules
+          npm run test:storage-modules
+          npm run test:utils-modules
+          npm run test:api-modules
+          npm run test:identity

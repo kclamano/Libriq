@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
+import { handleApiRequest } from '../api/app.js';
 
 const root = path.resolve(process.cwd(), 'frontend');
 const port = Number(process.env.LIBRIQ_E2E_PORT || 4173);
@@ -45,6 +46,11 @@ const server = http.createServer(async (req, res) => {
   const parsed = url.parse(req.url, true);
   const pathname = parsed.pathname || '/';
 
+  if (pathname.startsWith('/api/')) {
+    const handled = await handleApiRequest(req, res);
+    if (handled) return;
+  }
+
   if (pathname.startsWith('/__libriq_test_api')) {
     if (pathname === '/__libriq_test_api/reset' && req.method === 'POST') {
       store.clear();
@@ -76,11 +82,24 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       if (req.method === 'PUT') {
-        const body = await new Promise((resolve) => {
-          let raw = '';
-          req.on('data', (chunk) => { raw += chunk; });
-          req.on('end', () => resolve(JSON.parse(raw || '{}')));
-        });
+        let body;
+        try {
+          body = await new Promise((resolve, reject) => {
+            let raw = '';
+            req.on('data', (chunk) => { raw += chunk; });
+            req.on('end', () => {
+              try {
+                resolve(JSON.parse(raw || '{}'));
+              } catch (parseErr) {
+                reject(parseErr);
+              }
+            });
+            req.on('error', reject);
+          });
+        } catch (parseErr) {
+          sendJson(res, 400, { error: 'Invalid JSON payload', details: parseErr.message });
+          return;
+        }
         collection.set(id, body.data);
         store.set(collectionPath, collection);
         publish(collectionPath);

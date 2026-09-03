@@ -1,5 +1,40 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// This value is retrieved and hardcoded by the NPM postinstall script
 const getDefaultsFromPostinstall = () => undefined;
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const stringToByteArray$1 = function (str) {
+    // TODO(user): Use native implementations if/when available
     const out = [];
     let p = 0;
     for (let i = 0; i < str.length; i++) {
@@ -14,6 +49,7 @@ const stringToByteArray$1 = function (str) {
         else if ((c & 0xfc00) === 0xd800 &&
             i + 1 < str.length &&
             (str.charCodeAt(i + 1) & 0xfc00) === 0xdc00) {
+            // Surrogate Pair
             c = 0x10000 + ((c & 0x03ff) << 10) + (str.charCodeAt(++i) & 0x03ff);
             out[p++] = (c >> 18) | 240;
             out[p++] = ((c >> 12) & 63) | 128;
@@ -35,6 +71,7 @@ const stringToByteArray$1 = function (str) {
  * @return Stringification of the array.
  */
 const byteArrayToString = function (bytes) {
+    // TODO(user): Use native implementations if/when available
     const out = [];
     let pos = 0, c = 0;
     while (pos < bytes.length) {
@@ -64,19 +101,63 @@ const byteArrayToString = function (bytes) {
     }
     return out.join('');
 };
+// We define it as an object literal instead of a class because a class compiled down to es5 can't
+// be treeshaked. https://github.com/rollup/rollup/issues/1691
+// Static lookup maps, lazily populated by init_()
+// TODO(dlarocque): Define this as a class, since we no longer target ES5.
 const base64 = {
+    /**
+     * Maps bytes to characters.
+     */
     byteToCharMap_: null,
+    /**
+     * Maps characters to bytes.
+     */
     charToByteMap_: null,
+    /**
+     * Maps bytes to websafe characters.
+     * @private
+     */
     byteToCharMapWebSafe_: null,
+    /**
+     * Maps websafe characters to bytes.
+     * @private
+     */
     charToByteMapWebSafe_: null,
+    /**
+     * Our default alphabet, shared between
+     * ENCODED_VALS and ENCODED_VALS_WEBSAFE
+     */
     ENCODED_VALS_BASE: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789',
+    /**
+     * Our default alphabet. Value 64 (=) is special; it means "nothing."
+     */
     get ENCODED_VALS() {
         return this.ENCODED_VALS_BASE + '+/=';
     },
+    /**
+     * Our websafe alphabet.
+     */
     get ENCODED_VALS_WEBSAFE() {
         return this.ENCODED_VALS_BASE + '-_.';
     },
+    /**
+     * Whether this browser supports the atob and btoa functions. This extension
+     * started at Mozilla but is now implemented by many browsers. We use the
+     * ASSUME_* variables to avoid pulling in the full useragent detection library
+     * but still allowing the standard per-browser compilations.
+     *
+     */
     HAS_NATIVE_SUPPORT: typeof atob === 'function',
+    /**
+     * Base64-encode an array of bytes.
+     *
+     * @param input An array of bytes (numbers with
+     *     value in [0, 255]) to encode.
+     * @param webSafe Boolean indicating we should use the
+     *     alternative alphabet.
+     * @return The base64 encoded string.
+     */
     encodeByteArray(input, webSafe) {
         if (!Array.isArray(input)) {
             throw Error('encodeByteArray takes an array as a parameter');
@@ -106,18 +187,53 @@ const base64 = {
         }
         return output.join('');
     },
+    /**
+     * Base64-encode a string.
+     *
+     * @param input A string to encode.
+     * @param webSafe If true, we should use the
+     *     alternative alphabet.
+     * @return The base64 encoded string.
+     */
     encodeString(input, webSafe) {
+        // Shortcut for Mozilla browsers that implement
+        // a native base64 encoder in the form of "btoa/atob"
         if (this.HAS_NATIVE_SUPPORT && !webSafe) {
             return btoa(input);
         }
         return this.encodeByteArray(stringToByteArray$1(input), webSafe);
     },
+    /**
+     * Base64-decode a string.
+     *
+     * @param input to decode.
+     * @param webSafe True if we should use the
+     *     alternative alphabet.
+     * @return string representing the decoded value.
+     */
     decodeString(input, webSafe) {
+        // Shortcut for Mozilla browsers that implement
+        // a native base64 encoder in the form of "btoa/atob"
         if (this.HAS_NATIVE_SUPPORT && !webSafe) {
             return atob(input);
         }
         return byteArrayToString(this.decodeStringToByteArray(input, webSafe));
     },
+    /**
+     * Base64-decode a string.
+     *
+     * In base-64 decoding, groups of four characters are converted into three
+     * bytes.  If the encoder did not apply padding, the input length may not
+     * be a multiple of 4.
+     *
+     * In this case, the last group will have fewer than 4 characters, and
+     * padding will be inferred.  If the group has one or two characters, it decodes
+     * to one byte.  If the group has three characters, it decodes to two bytes.
+     *
+     * @param input Input to decode.
+     * @param webSafe True if we should use the web-safe alphabet.
+     * @return bytes representing the decoded value.
+     */
     decodeStringToByteArray(input, webSafe) {
         this.init_();
         const charToByteMap = webSafe
@@ -151,17 +267,24 @@ const base64 = {
         }
         return output;
     },
+    /**
+     * Lazy static initialization function. Called before
+     * accessing any of the static map variables.
+     * @private
+     */
     init_() {
         if (!this.byteToCharMap_) {
             this.byteToCharMap_ = {};
             this.charToByteMap_ = {};
             this.byteToCharMapWebSafe_ = {};
             this.charToByteMapWebSafe_ = {};
+            // We want quick mappings back and forth, so we precompute two maps.
             for (let i = 0; i < this.ENCODED_VALS.length; i++) {
                 this.byteToCharMap_[i] = this.ENCODED_VALS.charAt(i);
                 this.charToByteMap_[this.byteToCharMap_[i]] = i;
                 this.byteToCharMapWebSafe_[i] = this.ENCODED_VALS_WEBSAFE.charAt(i);
                 this.charToByteMapWebSafe_[this.byteToCharMapWebSafe_[i]] = i;
+                // Be forgiving when decoding and correctly decode both encodings.
                 if (i >= this.ENCODED_VALS_BASE.length) {
                     this.charToByteMap_[this.ENCODED_VALS_WEBSAFE.charAt(i)] = i;
                     this.charToByteMapWebSafe_[this.ENCODED_VALS.charAt(i)] = i;

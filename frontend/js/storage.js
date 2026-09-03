@@ -2,6 +2,7 @@ import {
   LIBRIQ,
   createBook,
   createProfile,
+  SEED_BOOKS,
 } from './data.js';
 
 export const Storage = (() => {

@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
 import path from 'node:path';
+import { validateConfig } from '../api/config.js';
 
 const rootDir = process.cwd();
 const configPath = path.join(rootDir, 'frontend', 'js', 'config.js');
@@ -20,6 +21,11 @@ await writeFile(
 );
 
 await loadLocalEnvFile(path.join(rootDir, '.env'));
+
+const envValidation = validateConfig(process.env);
+if (!envValidation.valid) {
+  console.warn(`[Libriq] Environment validation warnings:\n  - ${envValidation.errors.join('\n  - ')}`);
+}
 
 const envKey = String(process.env.GOOGLE_BOOKS_API_KEY || '').trim();
 const firebaseConfig = {
