@@ -1,4 +1,4 @@
-﻿.badge {
+.badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -47,7 +47,52 @@
   overflow: hidden;
   flex-shrink: 0;
   background: var(--surface-3);
-  box-shadow: var(--shadow-cover);
+  box-shadow: var(--shadow-book-3d);
+  transition: transform var(--duration-slow) var(--ease-spring),
+              box-shadow var(--duration-slow) var(--ease-spring);
+  transform-origin: left center;
+}
+
+/* 3D Physical Spine Crease Shadow */
+.book-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 7%;
+  min-width: 4px;
+  max-width: 9px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.16) 45%,
+    rgba(255, 255, 255, 0.12) 75%,
+    transparent 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+/* 3D Book Page-Edge Highlight on Right */
+.book-cover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: linear-gradient(
+    270deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 .book-cover img {
@@ -55,6 +100,26 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* 3D Interactive Hover Depth */
+.book-cover:hover,
+.book-card:hover .book-cover,
+.dashboard-recent-card:hover .book-cover,
+.shelf-item:hover .book-cover {
+  transform: translateY(-4px) rotateY(-3deg) scale(1.02);
+  box-shadow: var(--shadow-book-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-cover,
+  .book-cover:hover,
+  .book-card:hover .book-cover,
+  .dashboard-recent-card:hover .book-cover,
+  .shelf-item:hover .book-cover {
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 .book-cover-placeholder {

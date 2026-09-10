@@ -1,4 +1,4 @@
-﻿.dashboard-page {
+.dashboard-page {
   max-width: 1240px;
 }
 
@@ -763,6 +763,13 @@
 
 #dashboardPage .dashboard-feature-panel {
   padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(200, 148, 70, 0.12), transparent 60%),
+    var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card-elevated);
 }
 
 #dashboardPage .dashboard-hero-card {
@@ -776,7 +783,16 @@
   width: 100%;
   aspect-ratio: 3 / 4;
   height: auto;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-book-3d);
+  transform: perspective(1000px) rotateY(-2deg);
+  transition: transform var(--duration-slow) var(--ease-spring),
+              box-shadow var(--duration-slow) var(--ease-spring);
+}
+
+#dashboardPage .dashboard-hero-cover .book-cover:hover {
+  transform: perspective(1000px) rotateY(-4deg) translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-book-hover);
 }
 
 #dashboardPage .dashboard-pill {
@@ -789,7 +805,7 @@
   color: var(--accent);
   font-size: var(--text-xs);
   font-weight: var(--weight-semi);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -805,6 +821,8 @@
   margin-top: var(--space-3);
   color: var(--text-secondary);
   font-size: var(--text-lg);
+  font-style: italic;
+  font-family: var(--font-serif);
 }
 
 #dashboardPage .dashboard-progress-meta {
@@ -820,17 +838,56 @@
   text-transform: uppercase;
 }
 
+#dashboardPage .dashboard-progress-meta strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+}
+
 #dashboardPage .dashboard-progress-bar {
   margin-top: var(--space-2);
   height: 8px;
-  background: rgba(67, 56, 202, 0.12);
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+#dashboardPage .dashboard-progress-bar .progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--gold) 0%, #edd391 50%, var(--gold) 100%);
+  background-size: 200% 100%;
+  animation: progressShimmer 3.5s ease-in-out infinite;
+  transition: width 0.8s var(--ease-out);
+}
+
+@keyframes progressShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 #dashboardPage .dashboard-hero-quote {
+  position: relative;
   margin-top: var(--space-5);
+  padding-left: var(--space-5);
   color: var(--text-secondary);
   font-size: var(--text-base);
   line-height: 1.7;
+  font-style: italic;
+  border-left: 2px solid var(--gold-22);
+}
+
+#dashboardPage .dashboard-hero-quote::before {
+  content: '“';
+  position: absolute;
+  left: -8px;
+  top: -14px;
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  color: var(--gold);
+  opacity: 0.45;
+  line-height: 1;
+  pointer-events: none;
 }
 
 #dashboardPage .dashboard-hero-actions {
@@ -1378,5 +1435,152 @@ html[data-theme="dark"] #dashboardPage .dashboard-goal-header::before {
 
   #dashboardPage .dashboard-compact-card strong {
     font-size: 1.15rem;
+  }
+}
+
+/* Day-1 Getting Started Onboarding Checklist */
+.onboarding-checklist {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-elevated));
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.onboarding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.onboarding-header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.onboarding-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  background: var(--gold-08);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  width: fit-content;
+}
+
+.onboarding-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.onboarding-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.onboarding-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+
+.onboarding-dismiss:hover {
+  color: var(--text-strong);
+  background: var(--bg-hover);
+}
+
+.onboarding-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.onboarding-step {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  transition: border-color var(--duration-fast), transform var(--duration-fast);
+}
+
+.onboarding-step:hover {
+  border-color: var(--gold-18);
+  transform: translateY(-2px);
+}
+
+.onboarding-step.completed {
+  opacity: 0.82;
+  border-color: rgba(107, 170, 117, 0.25);
+  background: rgba(107, 170, 117, 0.04);
+}
+
+.onboarding-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  background: var(--gold-08);
+  color: var(--gold);
+  font-size: 1.15rem;
+}
+
+.onboarding-step.completed .onboarding-step-icon {
+  background: rgba(107, 170, 117, 0.15);
+  color: var(--green);
+}
+
+.onboarding-step-content strong {
+  display: block;
+  font-size: var(--text-base);
+  color: var(--text-strong);
+  margin-bottom: var(--space-1);
+}
+
+.onboarding-step-content p {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+.onboarding-step .btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+@media (max-width: 900px) {
+  .onboarding-steps {
+    grid-template-columns: 1fr;
+  }
+  .onboarding-step {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .onboarding-step .btn {
+    margin-top: var(--space-2);
   }
 }

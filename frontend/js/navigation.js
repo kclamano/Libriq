@@ -384,6 +384,17 @@ export const Navigation = (() => {
         if (active) el.setAttribute('aria-current', 'page');
         else el.removeAttribute('aria-current');
       });
+      Utils.$$('.mobile-bottom-item').forEach(el => {
+        const tab = el.dataset.tab;
+        let active = false;
+        if (tab === 'dashboard' && name === 'dashboard') active = true;
+        else if (tab === 'library' && ['library', 'reading', 'wishlist', 'finished', 'abandoned'].includes(name)) active = true;
+        else if (tab === 'stats' && ['stats', 'goals', 'activity'].includes(name)) active = true;
+        else if (tab === 'settings' && ['settings', 'help'].includes(name)) active = true;
+        el.classList.toggle('active', active);
+        if (active) el.setAttribute('aria-current', 'page');
+        else el.removeAttribute('aria-current');
+      });
       closeMobileSidebar();
     },
     afterNavigate: ({ name, root }) => {
@@ -599,6 +610,15 @@ export const Navigation = (() => {
     initialized = true;
     Utils.$$('.nav-item').forEach(btn => {
       btn.addEventListener('click', () => goTo(btn.dataset.page));
+    });
+
+    Utils.$$('.mobile-bottom-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.tab) goTo(btn.dataset.tab);
+      });
+    });
+    document.getElementById('mobileBottomSearchBtn')?.addEventListener('click', () => {
+      Search.open();
     });
 
     document.getElementById('mobileMenuBtn')?.addEventListener('click', openMobileSidebar);
@@ -919,6 +939,25 @@ function renderSessionChoicePage() {
             </div>
             <div class="session-preview-progress"><span style="width: 68%"></span></div>
           </div>
+
+          <div class="session-demo-showcase" id="sessionDemoShowcase" aria-label="Interactive preview: Search any book">
+            <div class="session-demo-header">
+              <span class="session-demo-badge"><i class="ph ph-sparkle"></i> Live Book Search</span>
+              <span class="session-demo-subtitle">Try finding your current read</span>
+            </div>
+            <div class="session-demo-searchbar">
+              <i class="ph ph-magnifying-glass session-demo-search-icon"></i>
+              <input type="text" id="sessionDemoInput" class="session-demo-input" placeholder="Search title or author (e.g. Dune)..." autocomplete="off" />
+              <span class="session-demo-spinner" id="sessionDemoSpinner" hidden></span>
+            </div>
+            <div class="session-demo-tags">
+              <span class="session-demo-tag-label">Try:</span>
+              <button type="button" class="session-demo-tag" data-query="Project Hail Mary">Project Hail Mary</button>
+              <button type="button" class="session-demo-tag" data-query="Atomic Habits">Atomic Habits</button>
+              <button type="button" class="session-demo-tag" data-query="Dune">Dune</button>
+            </div>
+            <div class="session-demo-results" id="sessionDemoResults" hidden></div>
+          </div>
         </div>
 
         <div class="session-card-stack session-auth-panel">
@@ -927,6 +966,18 @@ function renderSessionChoicePage() {
             <h2>${hasUser ? `Continue your library` : 'Start your reading space'}</h2>
             <p>${hasUser ? 'Your account is ready on this device.' : 'Sign in or create an account to begin.'}</p>
           </div>
+          ${inAppBrowser ? `
+            <div class="session-inapp-notice" role="alert">
+              <div class="session-inapp-icon"><i class="ph ph-warning-circle"></i></div>
+              <div class="session-inapp-body">
+                <strong>In-App Browser Detected</strong>
+                <p>Social apps (Instagram, Reddit, TikTok) block Google sign-in. Use email sign-up below or open in your system browser.</p>
+                <a class="session-inapp-link" href="${openInBrowserHref}" target="_blank" rel="noopener noreferrer">
+                  <i class="ph ph-arrow-square-out"></i> Open in Safari / Chrome
+                </a>
+              </div>
+            </div>
+          ` : ''}
           ${loading ? `
             <div class="session-loading-card" aria-live="polite">
               <div class="session-loading-spinner"></div>
@@ -1241,6 +1292,91 @@ function renderSessionChoicePage() {
       const cancelled = code.includes('popup-closed-by-user') || code.includes('popup-blocked');
       Utils.toast(cancelled ? 'Sign-out was cancelled.' : 'Could not switch accounts right now.', 'error');
     }
+  });
+
+  if (inAppBrowser) {
+    Navigation.setEmailAuthMode?.('signup');
+  }
+
+  // Interactive Live Book Search Preview handlers
+  const demoInput = document.getElementById('sessionDemoInput');
+  const demoSpinner = document.getElementById('sessionDemoSpinner');
+  const demoResults = document.getElementById('sessionDemoResults');
+  let demoDebounceTimer = null;
+
+  const triggerSignupForBook = (title) => {
+    Navigation.setEmailAuthMode?.('signup');
+    const form = document.getElementById('emailAuthForm');
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('sessionEmailInput')?.focus();
+    Utils.toast?.(`Create an account to save "${title}" to your library!`, 'info');
+  };
+
+  const executeDemoSearch = async (query) => {
+    const q = (query || '').trim();
+    if (!q || q.length < 2) {
+      if (demoResults) {
+        demoResults.innerHTML = '';
+        demoResults.hidden = true;
+      }
+      return;
+    }
+    if (demoSpinner) demoSpinner.hidden = false;
+    try {
+      const results = await BookAPI.searchBooks(q);
+      if (demoSpinner) demoSpinner.hidden = true;
+      if (!demoResults) return;
+      if (!results || results.length === 0) {
+        demoResults.innerHTML = `<div class="session-demo-empty">No books found for "${Utils.sanitize(q)}". Try another title!</div>`;
+        demoResults.hidden = false;
+        return;
+      }
+      const topBooks = results.slice(0, 3);
+      demoResults.innerHTML = topBooks.map(b => {
+        const cover = b.coverUrl
+          ? `<img src="${Utils.sanitize(b.coverUrl)}" class="session-demo-book-cover" alt="" onerror="this.src='./icons/icon-192.png'" />`
+          : `<div class="session-demo-book-cover-placeholder"><i class="ph ph-book"></i></div>`;
+        return `
+          <div class="session-demo-book-card" data-title="${Utils.sanitize(b.title)}">
+            ${cover}
+            <div class="session-demo-book-info">
+              <div class="session-demo-book-title">${Utils.sanitize(b.title)}</div>
+              <div class="session-demo-book-author">${Utils.sanitize(b.author || 'Unknown')}</div>
+              <div class="session-demo-book-meta">${b.year ? b.year : ''}${b.pageCount ? ` • ${b.pageCount} pages` : ''}</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary session-demo-save-btn" data-title="${Utils.sanitize(b.title)}">
+              <i class="ph ph-plus"></i> Save
+            </button>
+          </div>
+        `;
+      }).join('');
+      demoResults.hidden = false;
+
+      demoResults.querySelectorAll('.session-demo-save-btn, .session-demo-book-card').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const title = el.dataset.title || el.closest('.session-demo-book-card')?.dataset.title;
+          if (title) triggerSignupForBook(title);
+        });
+      });
+    } catch (err) {
+      if (demoSpinner) demoSpinner.hidden = true;
+      console.warn('[Libriq] Demo search error:', err);
+    }
+  };
+
+  demoInput?.addEventListener('input', (e) => {
+    if (demoDebounceTimer) clearTimeout(demoDebounceTimer);
+    const val = e.target.value;
+    demoDebounceTimer = setTimeout(() => executeDemoSearch(val), 350);
+  });
+
+  Utils.$$('.session-demo-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.query;
+      if (demoInput) demoInput.value = q;
+      executeDemoSearch(q);
+    });
   });
 
   if (!window.LibriqSessionFallback.listenersAttached) {

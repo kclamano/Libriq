@@ -25,6 +25,11 @@ export function initDashboardEvents(container, actions = {}) {
       'show-book-details': () => actions.showBookDetails?.(bookId),
       'update-progress': () => actions.updateProgress?.(bookId),
       'toggle-favorite': () => actions.toggleFavorite?.(bookId),
+      'dismiss-onboarding': () => {
+        localStorage.setItem('libriq_onboarding_dismissed', '1');
+        const container = document.querySelector('.onboarding-checklist');
+        if (container) container.remove();
+      },
     };
 
     if (!handlers[action]) return;

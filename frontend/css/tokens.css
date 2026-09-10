@@ -74,10 +74,24 @@
   --shadow-md: var(--shadow-card);
   --shadow-lg: var(--shadow-modal);
   --shadow-xl: var(--shadow-modal);
+  --shadow-book-3d:
+    -1px 0 2px rgba(0, 0, 0, 0.25),
+    2px 2px 4px rgba(0, 0, 0, 0.15),
+    4px 6px 14px rgba(0, 0, 0, 0.35),
+    8px 16px 28px rgba(0, 0, 0, 0.25);
+  --shadow-book-hover:
+    -2px 0 4px rgba(0, 0, 0, 0.3),
+    4px 4px 8px rgba(0, 0, 0, 0.2),
+    8px 14px 24px rgba(0, 0, 0, 0.45),
+    12px 24px 38px rgba(0, 0, 0, 0.35);
+  --shadow-card-elevated: 0 14px 36px -4px rgba(0, 0, 0, 0.45), 0 2px 10px rgba(0, 0, 0, 0.25);
+  --ambient-glow-warm: radial-gradient(circle at 25% 40%, rgba(200, 148, 70, 0.14), transparent 70%);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 350ms;
@@ -119,7 +133,7 @@
   --text-body: #B5AA9C;
   --text-muted: #A79B8D;
   --text-dim: #9A8E80;
-  --text-faint: #968A7D;
+  --text-faint: #A4988B;
   --text-secondary: var(--text-body);
   --text-tertiary: var(--text-dim);
   --text-inverse: var(--bg);
@@ -182,27 +196,27 @@
   --bg-hover: rgba(0,0,0,0.04);
   --bg-active: rgba(0,0,0,0.07);
 
-  --gold: #9A6F1E;
-  --gold-hover: #7D5A18;
-  --gold-strong: #7D5A18;
-  --gold-04: rgba(154,111,30,0.04);
-  --gold-06: rgba(154,111,30,0.06);
-  --gold-08: rgba(154,111,30,0.08);
-  --gold-10: rgba(154,111,30,0.10);
-  --gold-12: rgba(154,111,30,0.12);
-  --gold-18: rgba(154,111,30,0.18);
-  --gold-22: rgba(154,111,30,0.22);
+  --gold: #865F15;
+  --gold-hover: #704F0E;
+  --gold-strong: #704F0E;
+  --gold-04: rgba(134,95,21,0.05);
+  --gold-06: rgba(134,95,21,0.08);
+  --gold-08: rgba(134,95,21,0.11);
+  --gold-10: rgba(134,95,21,0.14);
+  --gold-12: rgba(134,95,21,0.16);
+  --gold-18: rgba(134,95,21,0.22);
+  --gold-22: rgba(134,95,21,0.26);
   --accent: var(--gold);
   --accent-dim: var(--gold-12);
   --accent-hover: var(--gold-hover);
-  --accent-muted: #C9A84C;
+  --accent-muted: #B88B2A;
 
   --text-strong: #1A1825;
   --text-primary: #1A1825;
   --text-body: #5E5C6E;
   --text-muted: #5E5C6E;
-  --text-dim: #6E6A79;
-  --text-faint: #9896A4;
+  --text-dim: #555160;
+  --text-faint: #5E5A68;
   --text-secondary: var(--text-body);
   --text-tertiary: var(--text-faint);
   --text-inverse: #FDFAF6;
@@ -246,6 +260,18 @@
   --shadow-card: var(--shadow-md);
   --shadow-cover: var(--shadow-sm);
   --shadow-modal: var(--shadow-xl);
+  --shadow-book-3d:
+    -1px 0 2px rgba(0, 0, 0, 0.08),
+    2px 2px 4px rgba(0, 0, 0, 0.06),
+    4px 6px 12px rgba(0, 0, 0, 0.12),
+    8px 14px 24px rgba(0, 0, 0, 0.08);
+  --shadow-book-hover:
+    -2px 0 3px rgba(0, 0, 0, 0.1),
+    3px 4px 8px rgba(0, 0, 0, 0.08),
+    6px 12px 20px rgba(0, 0, 0, 0.18),
+    10px 20px 32px rgba(0, 0, 0, 0.12);
+  --shadow-card-elevated: 0 10px 28px -4px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --ambient-glow-warm: radial-gradient(circle at 25% 40%, rgba(134, 95, 21, 0.10), transparent 70%);
 
   color-scheme: light;
 }

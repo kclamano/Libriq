@@ -54,7 +54,18 @@ function getReleaseNotes() {
 
   function shouldShowWhatsNew() {
     const seen = localStorage.getItem(RELEASE_KEY) || '';
-    return seen !== getWhatsNewVersion();
+    if (seen === getWhatsNewVersion()) return false;
+
+    // Suppress for fresh accounts (no prior version seen and empty library)
+    // to prevent Day-1 changelog cognitive overload
+    if (!seen) {
+      const books = Storage.getBooks?.() || [];
+      if (books.length === 0) {
+        localStorage.setItem(RELEASE_KEY, getWhatsNewVersion());
+        return false;
+      }
+    }
+    return true;
   }
 
   function renderWhatsNew() {

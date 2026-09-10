@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="LibriQ — Your reading life, beautifully organized." />
   <title>LibriQ</title>
-  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
   <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16x16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="48x48" href="./assets/icons/favicon-48x48.png" />
@@ -103,16 +103,9 @@
               <i class="ph ph-heart"></i>
               <span>Favorites</span>
             </button>
-          </li>
-          <li>
-            <button class="nav-item" data-page="activity">
-              <i class="ph ph-clock-counter-clockwise"></i>
-              <span>Activity</span>
-            </button>
-          </li>
         </ul>
 
-        <span class="nav-section-label">Discover</span>
+        <span class="nav-section-label">Insights</span>
         <ul class="nav-list" role="list">
           <li>
             <button class="nav-item" data-page="stats">
@@ -121,15 +114,25 @@
             </button>
           </li>
           <li>
-            <button class="nav-item" data-page="recommendations">
-              <i class="ph ph-sparkle"></i>
-              <span>Recommendations</span>
-            </button>
-          </li>
-          <li>
             <button class="nav-item" data-page="goals">
               <i class="ph ph-target"></i>
               <span>Reading Goals</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-page="activity">
+              <i class="ph ph-clock-counter-clockwise"></i>
+              <span>Activity Log</span>
+            </button>
+          </li>
+        </ul>
+
+        <span class="nav-section-label">Discover</span>
+        <ul class="nav-list" role="list">
+          <li>
+            <button class="nav-item" data-page="recommendations">
+              <i class="ph ph-sparkle"></i>
+              <span>Recommendations</span>
             </button>
           </li>
           <li>
@@ -189,6 +192,29 @@
     <main id="mainContent" class="main-content" role="main">
     </main>
 
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+      <button class="mobile-bottom-item active" data-page="dashboard" aria-label="Home Dashboard">
+        <i class="ph ph-house"></i>
+        <span>Home</span>
+      </button>
+      <button class="mobile-bottom-item" data-page="library" aria-label="My Library">
+        <i class="ph ph-books"></i>
+        <span>Library</span>
+      </button>
+      <button class="mobile-bottom-item mobile-bottom-action" id="mobileBottomSearchBtn" type="button" aria-label="Search and Add Books">
+        <div class="mobile-bottom-action-pill">
+          <i class="ph ph-plus"></i>
+        </div>
+      </button>
+      <button class="mobile-bottom-item" data-page="stats" aria-label="Reading Insights">
+        <i class="ph ph-chart-bar"></i>
+        <span>Insights</span>
+      </button>
+      <button class="mobile-bottom-item" data-page="settings" aria-label="Settings">
+        <i class="ph ph-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
   </div>
 
   <div class="modal-overlay" id="searchModal" role="dialog" aria-modal="true" aria-label="Search books" hidden>

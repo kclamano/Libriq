@@ -84,6 +84,8 @@ export const Dashboard = {
           </div>
         </div>
 
+        ${buildOnboardingChecklist(books, goals)}
+
         <div class="dashboard-layout">
           <div class="dashboard-main">
             <section class="dashboard-panel dashboard-feature-panel">
@@ -262,6 +264,9 @@ function buildFeaturedReadingHero(book) {
           <button class="btn btn-secondary" type="button" data-action="show-book-details" data-book-id="${Utils.sanitize(book.id)}">
             View Details
           </button>
+          <button class="btn btn-ghost btn-sm" type="button" data-action="toggle-favorite" data-book-id="${Utils.sanitize(book.id)}" aria-label="${book.isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+            <i class="${book.isFavorite ? 'ph-fill ph-heart' : 'ph ph-heart'}"></i>
+          </button>
         </div>
       </div>
     </div>`;
@@ -278,6 +283,10 @@ function buildFeaturedEmptyHero() {
           <button class="btn btn-primary" type="button" data-action="open-search">
             <i class="ph ph-plus"></i>
             Add Book
+          </button>
+          <button class="btn btn-secondary" type="button" data-action="open-manual-entry">
+            <i class="ph ph-pencil"></i>
+            Add Manually
           </button>
           <button class="btn btn-secondary" type="button" data-action="navigate" data-route="library">
             Browse Library
@@ -482,4 +491,69 @@ export function buildGenreRow(genre, count, total) {
         <div class="progress-fill" style="width:${pct}%; background: ${color}"></div>
       </div>
     </div>`;
+}
+
+function buildOnboardingChecklist(books, goals) {
+  if (typeof localStorage === 'undefined') return '';
+  if (localStorage.getItem('libriq_onboarding_dismissed') === '1') return '';
+  if (books && books.length >= 3) return '';
+
+  const hasBook = Array.isArray(books) && books.length > 0;
+  const hasGoal = localStorage.getItem('libriq_goal_customized') === '1' || (goals && goals.yearly !== 12);
+  const hasImport = localStorage.getItem('libriq_import_completed') === '1';
+
+  return `
+    <section class="onboarding-checklist" aria-label="Getting started with LibriQ">
+      <div class="onboarding-header">
+        <div class="onboarding-header-copy">
+          <span class="onboarding-pill"><i class="ph ph-sparkle"></i> Quick Setup</span>
+          <h2 class="onboarding-title">Getting started with your reading space</h2>
+          <p class="onboarding-subtitle">Complete these 3 quick steps to personalize your reading life.</p>
+        </div>
+        <button class="onboarding-dismiss" type="button" data-action="dismiss-onboarding" aria-label="Dismiss checklist">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="onboarding-steps">
+        <div class="onboarding-step ${hasBook ? 'completed' : ''}">
+          <div class="onboarding-step-icon">
+            <i class="ph ${hasBook ? 'ph-check-circle' : 'ph-book-plus'}"></i>
+          </div>
+          <div class="onboarding-step-content">
+            <strong>1. Add what you&apos;re reading right now</strong>
+            <p>Search by title or ISBN to add your first book to your shelf.</p>
+          </div>
+          <button class="btn ${hasBook ? 'btn-secondary' : 'btn-primary'} btn-sm" type="button" data-action="open-search">
+            ${hasBook ? 'Add another' : 'Search books'}
+          </button>
+        </div>
+
+        <div class="onboarding-step ${hasGoal ? 'completed' : ''}">
+          <div class="onboarding-step-icon">
+            <i class="ph ${hasGoal ? 'ph-check-circle' : 'ph-target'}"></i>
+          </div>
+          <div class="onboarding-step-content">
+            <strong>2. Set your yearly reading goal</strong>
+            <p>Aim for a target number of books to track your reading momentum.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" type="button" data-action="navigate" data-route="goals">
+            ${hasGoal ? 'Adjust goal' : 'Set goal'}
+          </button>
+        </div>
+
+        <div class="onboarding-step ${hasImport ? 'completed' : ''}">
+          <div class="onboarding-step-icon">
+            <i class="ph ${hasImport ? 'ph-check-circle' : 'ph-download-simple'}"></i>
+          </div>
+          <div class="onboarding-step-content">
+            <strong>3. Import Kindle clippings or Goodreads</strong>
+            <p>Already reading elsewhere? Bring your highlights, clippings, or library backup.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" type="button" data-action="navigate" data-route="settings">
+            Import data
+          </button>
+        </div>
+      </div>
+    </section>`;
 }
